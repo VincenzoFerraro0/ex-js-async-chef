@@ -15,3 +15,42 @@
 // Modifica getChefBirthday(id) per intercettare eventuali errori prima di fare la seconda richiesta.
 // 🎯 Bonus 2
 // Utilizza la libreria dayjs per formattare la data di nascita nel formato giorno/mese/anno.
+
+async function getChefBirthday(idRicetta) {
+    let ricetta;
+    try {
+        const ricettaResponse = await fetch(`https://dummyjson.com/recipes/${idRicetta}`);
+        ricetta = await ricettaResponse.json()
+    } catch (error) {
+        console.error(error)
+        throw new Error(`Errore nel recupero della ricetta id:${idRicetta} `)
+    }
+    if (ricetta.message) {
+        throw new Error(ricetta.message)
+    }
+    let chef;
+    try {
+        const chefResponse = await fetch(`https://dummyjson.com/users/${ricetta.userId}`);
+        chef = await chefResponse.json()
+
+    } catch (error) {
+        console.error(error)
+        throw new Error(`Errore nel recupero chef id:${ricetta.userId} `)
+    }
+    if(chef.message){
+         throw new Error(chef.message)
+    }
+    const formatteDate = dayjs(chef.birthDate).format('DD/MM/YYYY')
+
+    return formatteDate
+
+}
+
+(async () => {
+    try {
+        const birthday = await getChefBirthday(1)
+        console.log("Data di nascita dello chef:", birthday)
+    } catch (error) {
+        console.error("Errore:", error.message)
+    }
+})();
